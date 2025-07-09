@@ -1,0 +1,89 @@
+body {
+    font-family: "Vazirmatn", Tahoma, Arial, sans-serif;
+    background: #f7f7f7;
+    direction: rtl;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 500px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    padding: 32px 24px;
+}
+
+h1 {
+    color: #0a7cff;
+    margin-bottom: 24px;
+    text-align: center;
+}
+
+h2 {
+    color: #222;
+    margin-top: 24px;
+    font-size: 1.2rem;
+}
+
+.currencies table {
+    width: 100%;
+    margin: 8px 0 0 0;
+    border-collapse: collapse;
+}
+
+.currencies th, .currencies td {
+    border: 1px solid #e0e0e0;
+    padding: 8px 0;
+    text-align: center;
+}
+
+.exchange-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.exchange-form label {
+    font-size: 0.98rem;
+    margin-bottom: 2px;
+}
+
+.exchange-form input,
+.exchange-form select,
+.exchange-form button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+}
+
+.exchange-form button {
+    background: #0a7cff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s;
+}
+.exchange-form button:hover {
+    background: #065bb4;
+}
+
+.transactions ul {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.transactions li {
+    background: #f1f6ff;
+    padding: 8px 12px;
+    border-radius: 7px;
+    margin-bottom: 8px;
+    font-size: 0.98rem;
+}
