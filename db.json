@@ -1,0 +1,27 @@
+{
+  "users": {
+    "7138547731": {
+      "user_id": 7138547731,
+      "username": "vexa_helper",
+      "name": "𝑪𝒉𝒂𝒓𝒍𝒊𝒆",
+      "created_at": 1756500918,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 3,
+        "last_analysis_ts": 1756501110,
+        "last_confidence": 70
+      }
+    }
+  }
+}
