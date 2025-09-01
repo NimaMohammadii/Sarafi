@@ -1,14 +1,17 @@
 import base64
 import json
-import imghdr
 
+# 👇 تشخیص MIME با امضاهای باینری (بدون imghdr)
 def _guess_mime(image_bytes: bytes) -> str:
-    kind = imghdr.what(None, h=image_bytes)
-    if kind == "png":
+    b = image_bytes or b""
+    # PNG: 89 50 4E 47 0D 0A 1A 0A
+    if len(b) >= 8 and b[:8] == b"\x89PNG\r\n\x1a\n":
         return "image/png"
-    if kind in ("jpg", "jpeg"):
+    # JPEG: FF D8 FF
+    if len(b) >= 3 and b[:3] == b"\xff\xd8\xff":
         return "image/jpeg"
-    if kind == "webp":
+    # WEBP: "RIFF" .... "WEBP"
+    if len(b) >= 12 and b[:4] == b"RIFF" and b[8:12] == b"WEBP":
         return "image/webp"
     return "application/octet-stream"
 
