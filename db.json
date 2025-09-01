@@ -6,6 +6,52 @@
       "name": "𝑪𝒉𝒂𝒓𝒍𝒊𝒆",
       "created_at": 1756500918,
       "subscription": {
+        "active": true,
+        "plan": "manual_30d",
+        "start_ts": 1756535407,
+        "end_ts": 1759127407,
+        "via": "admin"
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 40,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 17,
+        "last_analysis_ts": 1756566373,
+        "last_confidence": 50
+      }
+    },
+    "93198499": {
+      "user_id": 93198499,
+      "username": "Mohamadnadafi",
+      "name": "Mohamad N",
+      "created_at": 1756565877,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 50,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 3,
+        "last_analysis_ts": 1756566339,
+        "last_confidence": 50
+      }
+    },
+    "114598642": {
+      "user_id": 114598642,
+      "username": "Ali_esmaeilooo",
+      "name": "‘°ºø•❤•.¸Ali¸.•❤•øº°‘",
+      "created_at": 1756565990,
+      "subscription": {
         "active": false,
         "plan": null,
         "start_ts": null,
@@ -18,10 +64,931 @@
         "risk_mode": "conservative"
       },
       "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "408271653": {
+      "user_id": 408271653,
+      "username": "MOHAMMAD_HOSEIN_BASTANI",
+      "name": "MOHAMMAD",
+      "created_at": 1756566028,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "7669098006": {
+      "user_id": 7669098006,
+      "username": "citiFAZEL",
+      "name": "🆙 UXUY ❔",
+      "created_at": 1756566031,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 1,
+        "last_analysis_ts": 1756566160,
+        "last_confidence": 50
+      }
+    },
+    "108085728": {
+      "user_id": 108085728,
+      "username": "Majiidabdollahi",
+      "name": "Majid Abdollahi🐾",
+      "created_at": 1756566128,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "84885403": {
+      "user_id": 84885403,
+      "username": "l_m_a_s_o_u_d_l",
+      "name": "Masoud",
+      "created_at": 1756566134,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 2,
+        "last_analysis_ts": 1756566225,
+        "last_confidence": 50
+      }
+    },
+    "5428241078": {
+      "user_id": 5428241078,
+      "username": "Ehsanrahmani9414",
+      "name": "Ehsan Rahmani",
+      "created_at": 1756566150,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 70,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 2,
+        "last_analysis_ts": 1756566343,
+        "last_confidence": 50
+      }
+    },
+    "719215122": {
+      "user_id": 719215122,
+      "username": "meysamjangi",
+      "name": "Meysam J",
+      "created_at": 1756566225,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "7422452340": {
+      "user_id": 7422452340,
+      "username": "MZR7888",
+      "name": "Bk １４３１",
+      "created_at": 1756566225,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "5991074419": {
+      "user_id": 5991074419,
+      "username": "Ben75y",
+      "name": "Benyamin Hidari",
+      "created_at": 1756566452,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 60,
+        "risk_mode": "conservative"
+      },
+      "stats": {
         "analyses_count": 3,
-        "last_analysis_ts": 1756501110,
+        "last_analysis_ts": 1756583062,
+        "last_confidence": 50
+      }
+    },
+    "6343500615": {
+      "user_id": 6343500615,
+      "username": "Saharhosinii",
+      "name": "S H",
+      "created_at": 1756566458,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 1,
+        "last_analysis_ts": 1756582499,
+        "last_confidence": 50
+      }
+    },
+    "864632583": {
+      "user_id": 864632583,
+      "username": "kurdboy8181",
+      "name": "『♕』𝑴𝒐𝒃𝒊𝒏『♕』",
+      "created_at": 1756566531,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "6627164359": {
+      "user_id": 6627164359,
+      "username": "BlOSll",
+      "name": "MahDi",
+      "created_at": 1756582500,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "566410504": {
+      "user_id": 566410504,
+      "username": "Smjavad76",
+      "name": "محمد جواد",
+      "created_at": 1756582500,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "1035828997": {
+      "user_id": 1035828997,
+      "username": "ramin_202",
+      "name": "RAMIN",
+      "created_at": 1756582500,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "6753903464": {
+      "user_id": 6753903464,
+      "username": "Arsam_sh8",
+      "name": "Arsam",
+      "created_at": 1756582500,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 1,
+        "last_analysis_ts": 1756582600,
         "last_confidence": 70
       }
+    },
+    "2045596963": {
+      "user_id": 2045596963,
+      "username": "Sohil_roshan",
+      "name": "𝓢𝓸𝓱𝓮𝓲𝓵",
+      "created_at": 1756582500,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "2007529532": {
+      "user_id": 2007529532,
+      "username": "majidseydi363800",
+      "name": "Mejid Seeydi",
+      "created_at": 1756582500,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "1163079917": {
+      "user_id": 1163079917,
+      "username": "AL1378I",
+      "name": "Ali Aliiiii",
+      "created_at": 1756582501,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "5789576339": {
+      "user_id": 5789576339,
+      "username": "hoseinzzzzzzzzzzz",
+      "name": "Hosein",
+      "created_at": 1756582501,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "489848820": {
+      "user_id": 489848820,
+      "username": "rhamidrezasadri",
+      "name": "Hamidreza",
+      "created_at": 1756582502,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "7315220508": {
+      "user_id": 7315220508,
+      "username": "",
+      "name": "حسین کریمی",
+      "created_at": 1756582502,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "6042288537": {
+      "user_id": 6042288537,
+      "username": "MGH802030",
+      "name": "MGHCR",
+      "created_at": 1756582502,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "7094028993": {
+      "user_id": 7094028993,
+      "username": "Mohamad0993_1380",
+      "name": "Hosein",
+      "created_at": 1756582503,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "7514193638": {
+      "user_id": 7514193638,
+      "username": "Emmett889",
+      "name": "AMIR",
+      "created_at": 1756582503,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "1084262952": {
+      "user_id": 1084262952,
+      "username": "Ffguhgfghu",
+      "name": "A",
+      "created_at": 1756582504,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "739156374": {
+      "user_id": 739156374,
+      "username": "Tahaamin5712",
+      "name": "𝓜.𝓪𝓶𝓲𝓷",
+      "created_at": 1756582504,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "203917823": {
+      "user_id": 203917823,
+      "username": "Shaho_sanandaji",
+      "name": "Shaho sanandaji",
+      "created_at": 1756582504,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "142778038": {
+      "user_id": 142778038,
+      "username": "irajghotbyan",
+      "name": "iraj",
+      "created_at": 1756582505,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "5548827414": {
+      "user_id": 5548827414,
+      "username": "Hafgfhh",
+      "name": "U U",
+      "created_at": 1756582505,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "6549111893": {
+      "user_id": 6549111893,
+      "username": "mobin_nabiloo",
+      "name": "mobin",
+      "created_at": 1756582505,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "6631347980": {
+      "user_id": 6631347980,
+      "username": "Litecoinfree12",
+      "name": "https://cryptodrip.io/index.php?ref=48499 https://cryptodrip.io/index.php?ref=48499",
+      "created_at": 1756582506,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "122774460": {
+      "user_id": 122774460,
+      "username": "hossein5665",
+      "name": "Hossein Mohammadi Khajeh Ghiashi",
+      "created_at": 1756582506,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "7096125850": {
+      "user_id": 7096125850,
+      "username": "m_a_h_d_i_m_a_h_d_i",
+      "name": "𝑀𝒶𝒽𝒹𝒾",
+      "created_at": 1756582507,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "844098094": {
+      "user_id": 844098094,
+      "username": "mahmoudabadi1378",
+      "name": "m.mahmoudabadi",
+      "created_at": 1756582507,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "141325936": {
+      "user_id": 141325936,
+      "username": "aloneface21",
+      "name": "Tanha marde Tanha",
+      "created_at": 1756582507,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "819727144": {
+      "user_id": 819727144,
+      "username": "SaeedMofrad",
+      "name": "ᴹʳSᴀᴇᴇᴅMᴏғʀᴀᴅ",
+      "created_at": 1756582694,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 1,
+        "last_analysis_ts": 1756582835,
+        "last_confidence": 50
+      }
+    },
+    "1076675967": {
+      "user_id": 1076675967,
+      "username": "a9f35",
+      "name": "Raha",
+      "created_at": 1756582901,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "7979652545": {
+      "user_id": 7979652545,
+      "username": "Amirsteve17",
+      "name": "Steve",
+      "created_at": 1756709767,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "6837194526": {
+      "user_id": 6837194526,
+      "username": "Mfp033",
+      "name": "Mohammad",
+      "created_at": 1756709767,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "370433142": {
+      "user_id": 370433142,
+      "username": "Morabi69varzeshi",
+      "name": "˙·٠•●♥Saeid.atash💪♥●•٠",
+      "created_at": 1756709767,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
+    },
+    "6956995471": {
+      "user_id": 6956995471,
+      "username": "Malakegalbam_z",
+      "name": "Hadi Sodagar 7780",
+      "created_at": 1756709768,
+      "subscription": {
+        "active": false,
+        "plan": null,
+        "start_ts": null,
+        "end_ts": null,
+        "via": null
+      },
+      "settings": {
+        "lang": "fa",
+        "min_confidence": 55,
+        "risk_mode": "conservative"
+      },
+      "stats": {
+        "analyses_count": 0,
+        "last_analysis_ts": null,
+        "last_confidence": null
+      }
     }
-  }
+  },
+  "payments": []
 }
