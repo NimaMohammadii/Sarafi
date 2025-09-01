@@ -93,8 +93,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = (
         "<b>به بات تحلیل چارت خوش آمدی!</b>\n\n"
-        f"<b>مدل: GPT-5</b>\n"
-        "⚠️ <b>تحلیل ماشینی است و سیگنال قطعی نیست.</b>\n\n"
+        f"<b>مدل: GPT-5</b>\n\n"
         "<b>از منوی زیر انتخاب کن:</b>"
     )
     await update.message.reply_text(text, reply_markup=menu_kb(), parse_mode="HTML")
