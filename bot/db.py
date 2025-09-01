@@ -82,6 +82,14 @@ def increment_analysis(user_id: int, conf: int = None):
         _save(db)
         return u
 
+def has_active_sub(user: dict) -> bool:
+    import time
+    sub = user.get("subscription", {}) or {}
+    if not sub.get("active"):
+        return False
+    if sub.get("end_ts") and sub["end_ts"] < int(time.time()):
+        return False
+    return True
 # --- افزوده‌ها: آمار و پرداخت/اشتراک دستی ---
 def _ensure_shape(data):
     # تضمین وجود کلیدها در DB

@@ -15,12 +15,12 @@ from .formatting import format_reply
 from .db import (
     ensure_user, get_user, update_user, increment_analysis,
     count_users, count_active_subs, last_payments, set_subscription_days,
-    all_user_ids, add_payment_record
+    all_user_ids, add_payment_record, has_active_sub
 )
 
 log = logging.getLogger(__name__)
 
-# ==== Callback keys (ثابت‌ها)
+# ==== ثابت‌ها و کلیدها
 CB_MAIN = "main"
 CB_ANALYZE = "analyze"
 CB_SUBS = "subs"
@@ -38,9 +38,11 @@ CB_ADMIN_STATS = "admin_stats"
 CB_ADMIN_GRANT = "admin_grant"
 CB_ADMIN_BCAST = "admin_bcast"
 
-# ==== تنظیمات نمایشی/قیمت
-ADMIN_USERNAME = "AdminOfChannel"   # ← یوزرنیم ادمین را اینجا بگذار (بدون @)
-STARS_PRICE = 399                   # 1 ماهه = 399 ستاره
+ADMIN_USERNAME = "xorder_help"   # ← یوزرنیم ادمین (بدون @)
+STARS_PRICE = 399                   # اشتراک 1 ماهه = 399 ستاره
+
+# 🔐 محدودیت رایگان
+FREE_LIMIT = 3                      # فقط 3 تحلیل رایگان برای کاربران بدون اشتراک
 
 # ==== کمک‌تابع‌ها
 def _fmt_ts(ts):
@@ -72,7 +74,7 @@ def admin_kb():
         [InlineKeyboardButton("↩️ بازگشت به منو", callback_data=CB_MAIN)]
     ])
 
-# ==== منوهای کاربری
+# ==== راهنمای /help (برای رفع NameError)
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = (
         "<b>راهنما 📖</b>\n\n"
@@ -84,13 +86,14 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     await update.message.reply_text(text, parse_mode="HTML")
 
+# ==== منوهای کاربری
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     ensure_user(user.id, user.username or "", (user.full_name or ""))
 
     text = (
         "<b>به بات تحلیل چارت خوش آمدی!</b>\n\n"
-        f"<b>مدل:</b> {MODEL_VISION}\n"
+        f"<b>مدل: GPT-5</b>\n"
         "⚠️ <b>تحلیل ماشینی است و سیگنال قطعی نیست.</b>\n\n"
         "<b>از منوی زیر انتخاب کن:</b>"
     )
@@ -126,7 +129,6 @@ async def subs_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "<b>خرید کردیت / اشتـراک 🛒</b>\n"
         f"• <b>۱ ماهه</b> = <b>{STARS_PRICE} ⭐️ Stars</b>\n\n"
         f"برای پرداخت ریالی: به ادمین پیام بده → <b>@{ADMIN_USERNAME}</b>\n"
-        "پس از پرداخت، اشتراک شما <b>دستی</b> فعال می‌شود."
     )
     k = InlineKeyboardMarkup([
         [InlineKeyboardButton("پرداخت با ⭐️ استارز", callback_data=CB_SUBS_PAY)],
@@ -246,26 +248,46 @@ async def settings_actions(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await q.answer("به‌روز شد ✅")
     u2 = get_user(uid)
-    await q.message.edit_text("<b>تنظیمات ⚙️</b>\nگزینه‌ها را تغییر دادید.", reply_markup=_settings_kb(u2), parse_mode="HTML")
+    await q.message.edit_text("<b>تنظیمات ⚙️</b>\nگزینه‌ها را تغییر دادید.", 
+                              reply_markup=_settings_kb(u2), parse_mode="HTML")
 
-# ==== تحلیل عکس (ادیت همان پیام)
+# ==== تحلیل عکس (با محدودیت 3 بار رایگان)
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     waiting = await update.message.reply_text("<b>در حال تحلیل تصویر...</b> 🧐", parse_mode="HTML")
     try:
+        # 1) کاربر
+        u = ensure_user(
+            update.effective_user.id,
+            update.effective_user.username or "",
+            update.effective_user.full_name or ""
+        )
+
+        # 2) محدودیت رایگان برای کاربران بدون اشتراک
+        if not has_active_sub(u) and u["stats"]["analyses_count"] >= FREE_LIMIT:
+            await waiting.edit_text(
+                f"⚠️ شما به <b>{FREE_LIMIT}</b> تحلیل رایگان رسیده‌اید.\n"
+                "برای ادامه باید <b>اشتراک</b> بگیرید 🛒.",
+                parse_mode="HTML",
+                reply_markup=menu_kb()
+            )
+            return
+
+        # 3) دانلود عکس
         photo = update.message.photo[-1]
         file = await photo.get_file()
-        bio = io.BytesIO()
-        await file.download_to_memory(out=bio)
-        image_bytes = bio.getvalue()
+        buf = io.BytesIO()
+        await file.download_to_memory(out=buf)
+        image_bytes = buf.getvalue()
 
+        # 4) تحلیل
         result = analyze_chart(image_bytes)
         conf = int(result.get("confidence_percent") or 0)
 
-        u = ensure_user(update.effective_user.id, update.effective_user.username or "", update.effective_user.full_name or "")
-        minc = u["settings"]["min_confidence"]
-
+        # 5) آمار
         increment_analysis(update.effective_user.id, conf=conf)
 
+        # 6) آستانه اعتماد
+        minc = u["settings"]["min_confidence"]
         if conf < minc:
             txt = (
                 "<b>سیگنال معتبر نیست</b> (اعتماد پایین‌تر از آستانه شما).\n"
@@ -275,12 +297,18 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await waiting.edit_text(txt, parse_mode="HTML", reply_markup=back_kb())
             return
 
+        # 7) پاسخ
         text = format_reply(result)
         text += f"\n\n<b>حالت ریسک فعلی:</b> {u['settings']['risk_mode']}"
         await waiting.edit_text(text, parse_mode="HTML", reply_markup=back_kb())
+
     except Exception:
         log.exception("Photo handling failed")
-        await waiting.edit_text("⚠️ خطا در تحلیل. لطفاً عکس واضح‌تر بفرست یا دوباره امتحان کن.", parse_mode="HTML", reply_markup=back_kb())
+        await waiting.edit_text(
+            "⚠️ خطا در تحلیل. لطفاً عکس واضح‌تر بفرست یا دوباره امتحان کن.",
+            parse_mode="HTML",
+            reply_markup=back_kb()
+        )
 
 # ==== پنل ادمین (/admin)
 async def admin_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
