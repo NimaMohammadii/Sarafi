@@ -90,8 +90,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = (
         "<b>به بات تحلیل چارت خوش آمدی!</b>\n\n"
-        f"<b>مدل:</b> {MODEL_VISION}\n"
-        "⚠️ <b>تحلیل ماشینی است و سیگنال قطعی نیست.</b>\n\n"
+        f"<b>مدل: GPT-5 🫧</b>\n\n"
         "<b>از منوی زیر انتخاب کن:</b>"
     )
     await update.message.reply_text(text, reply_markup=menu_kb(), parse_mode="HTML")
@@ -124,9 +123,7 @@ async def subs_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.answer()
     text = (
         "<b>خرید کردیت / اشتـراک 🛒</b>\n"
-        f"• <b>۱ ماهه</b> = <b>{STARS_PRICE} ⭐️ Stars</b>\n\n"
-        f"برای پرداخت ریالی: به ادمین پیام بده → <b>@{ADMIN_USERNAME}</b>\n"
-        "پس از پرداخت، اشتراک شما <b>دستی</b> فعال می‌شود."
+        f"• <b>۱ ماهه</b> = <b>{STARS_PRICE} ⭐️ Stars</b>"
     )
     k = InlineKeyboardMarkup([
         [InlineKeyboardButton("پرداخت با ⭐️ استارز", callback_data=CB_SUBS_PAY)],
