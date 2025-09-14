@@ -1,26 +1,30 @@
-# bot/handlers.py
 import io, logging, datetime, time
-from telegram import (
-    Update, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice
-)
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, LabeledPrice
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler, CallbackQueryHandler,
     ContextTypes, PreCheckoutQueryHandler, filters
 )
 
-from .config import BOT_TOKEN, MODEL_VISION, BOT_OWNER_ID
-from .prompts import WELCOME_TEXT, HELP_TEXT
+from .config import (
+    BOT_TOKEN, MODEL_VISION, BOT_OWNER_ID,
+    CHANNEL_ID, CHANNEL_URL, DAILY_FREE_LIMIT, AI_BRAND_LABEL,
+    GPT_DAILY_LIMIT_FREE, GPT_DAILY_LIMIT_PRO
+)
+from .prompts import HELP_TEXT
 from .analyze import analyze_chart
 from .formatting import format_reply
 from .db import (
-    ensure_user, get_user, update_user, increment_analysis,
-    count_users, count_active_subs, last_payments, set_subscription_days,
-    all_user_ids, add_payment_record, has_active_sub
+    ensure_user, get_user, update_user,
+    increment_analysis, count_users, count_active_subs, last_payments,
+    set_subscription_days, all_user_ids, add_payment_record,
+    has_active_sub, get_daily_count, increment_daily_analysis,
+    get_gpt_daily_count
 )
+from .handlers_learn import register_learn_handlers
+from .guard import require_membership as _require_membership, CB_JOIN_CHECK
 
 log = logging.getLogger(__name__)
 
-# ==== ثابت‌ها و کلیدها
 CB_MAIN = "main"
 CB_ANALYZE = "analyze"
 CB_SUBS = "subs"
@@ -31,20 +35,16 @@ CB_SETTINGS_CONF_UP = "settings_conf_up"
 CB_SETTINGS_CONF_DOWN = "settings_conf_down"
 CB_SETTINGS_RISK = "settings_risk"
 CB_SETTINGS_LANG = "settings_lang"
+CB_LEARN = "learn"
 
-# Admin panel
 CB_ADMIN = "admin"
 CB_ADMIN_STATS = "admin_stats"
 CB_ADMIN_GRANT = "admin_grant"
 CB_ADMIN_BCAST = "admin_bcast"
 
-ADMIN_USERNAME = "xorder_help"   # ← یوزرنیم ادمین (بدون @)
-STARS_PRICE = 399                   # اشتراک 1 ماهه = 399 ستاره
+ADMIN_USERNAME = "AdminOfChannel"
+STARS_PRICE = 399
 
-# 🔐 محدودیت رایگان
-FREE_LIMIT = 3                      # فقط 3 تحلیل رایگان برای کاربران بدون اشتراک
-
-# ==== کمک‌تابع‌ها
 def _fmt_ts(ts):
     if not ts: return "-"
     dt = datetime.datetime.fromtimestamp(ts)
@@ -55,16 +55,15 @@ def _is_owner(update: Update) -> bool:
     return BOT_OWNER_ID and uid == BOT_OWNER_ID
 
 def menu_kb():
-    # 2 × 2
     return InlineKeyboardMarkup([
         [InlineKeyboardButton("تحلیل چارت 📈", callback_data=CB_ANALYZE),
-         InlineKeyboardButton("خرید کردیت / اشتـراک 🛒", callback_data=CB_SUBS)],
+         InlineKeyboardButton("خرید اشتراک 🛒", callback_data=CB_SUBS)],
         [InlineKeyboardButton("پروفایل 👤", callback_data=CB_PROFILE),
-         InlineKeyboardButton("تنظیمات ⚙️", callback_data=CB_SETTINGS)]
+         InlineKeyboardButton("تنظیمات ⚙️", callback_data=CB_SETTINGS)],
+        [InlineKeyboardButton("آموزش‌ها 🎓", callback_data=CB_LEARN)],
     ])
 
-def back_kb():
-    return InlineKeyboardMarkup([[InlineKeyboardButton("↩️ بازگشت به منو", callback_data=CB_MAIN)]])
+def back_kb(): return InlineKeyboardMarkup([[InlineKeyboardButton("↩️ بازگشت به منو", callback_data=CB_MAIN)]])
 
 def admin_kb():
     return InlineKeyboardMarkup([
@@ -74,61 +73,47 @@ def admin_kb():
         [InlineKeyboardButton("↩️ بازگشت به منو", callback_data=CB_MAIN)]
     ])
 
-# ==== راهنمای /help (برای رفع NameError)
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = (
-        "<b>راهنما 📖</b>\n\n"
-        "• <b>تحلیل چارت 📈</b>: یک تصویر واضح از چارت بفرست تا تحلیل شود.\n"
-        "• <b>خرید کردیت / اشتراک 🛒</b>: پرداخت با ⭐️ استارز یا ریالی.\n"
-        "• <b>پروفایل 👤</b>: آمار، اشتراک و اطلاعات حساب شما.\n"
-        "• <b>تنظیمات ⚙️</b>: تغییر آستانه اعتماد، زبان خروجی، حالت ریسک.\n\n"
-        "⚠️ تحلیل‌ها صرفاً پیشنهادی هستند و سیگنال قطعی نیستند."
-    )
-    await update.message.reply_text(text, parse_mode="HTML")
+    await update.message.reply_text(HELP_TEXT, parse_mode="HTML")
 
-# ==== منوهای کاربری
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not await _require_membership(update, context): return
     user = update.effective_user
     ensure_user(user.id, user.username or "", (user.full_name or ""))
-
-    text = (
-        "<b>به بات تحلیل چارت خوش آمدی!</b>\n\n"
-        f"<b>🫧 مدل: GPT-5</b>\n\n"
-        "<b>از منوی زیر انتخاب کن:</b>"
-    )
+    text = ("<b>به بات تحلیل چارت خوش آمدی!</b>\n\n"
+            f"<b>مدل:</b> {MODEL_VISION}\n"
+            "⚠️ <b>تحلیل ماشینی است و سیگنال قطعی نیست.</b>\n\n"
+            "<b>از منوی زیر انتخاب کن:</b>")
     await update.message.reply_text(text, reply_markup=menu_kb(), parse_mode="HTML")
 
+async def join_check_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query; await q.answer()
+    context.user_data["ok_insta"] = True
+    if await _require_membership(update, context):
+        await q.message.edit_text("<b>✅ عضویت تایید شد</b>\nاز منوی زیر انتخاب کن:",
+                                  parse_mode="HTML", reply_markup=menu_kb())
+
 async def main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    await q.answer()
-    text = (
-        "<b>منوی اصلی</b>\n"
-        "👇 یکی را انتخاب کن:\n"
-        "• <b>تحلیل چارت</b>: عکس چارت بفرست تا تحلیل شود.\n"
-        "• <b>خرید کردیت / اشتـراک</b>: با ⭐️ استارز یا پرداخت ریالی.\n"
-        "• <b>پروفایل</b>: وضعیت اشتراک، آمار تحلیل‌ها و ...\n"
-        "• <b>تنظیمات</b>: آستانه اعتماد، حالت ریسک و زبان خروجی."
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
+    await q.message.edit_text(
+        "<b>منوی اصلی</b>\n👇 یکی را انتخاب کن:",
+        reply_markup=menu_kb(), parse_mode="HTML"
     )
-    await q.message.edit_text(text, reply_markup=menu_kb(), parse_mode="HTML")
 
 async def analyze_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    await q.answer()
-    text = (
-        "<b>تحلیل چارت 📈</b>\n"
-        "یک <b>عکس واضح</b> از چارت بفرست (تایم‌فریم/نماد روی تصویر مشخص باشد).\n"
-        "نتیجه با <b>لانگ/شورت/نوترید</b> و حدضرر/تارگت نمایش داده می‌شود."
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
+    await q.message.edit_text(
+        "<b>تحلیل چارت 📈</b>\nیک <b>عکس واضح</b> از چارت بفرست.",
+        reply_markup=back_kb(), parse_mode="HTML"
     )
-    await q.message.edit_text(text, reply_markup=back_kb(), parse_mode="HTML")
 
 async def subs_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    await q.answer()
-    text = (
-        "<b>خرید کردیت / اشتـراک 🛒</b>\n"
-        f"• <b>۱ ماهه</b> = <b>{STARS_PRICE} ⭐️ Stars</b>\n\n"
-        f"برای پرداخت ریالی: به ادمین پیام بده → <b>@{ADMIN_USERNAME}</b>\n"
-    )
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
+    text = (f"<b>خرید اشتراک 🛒</b>\n• <b>۱ ماهه</b> = <b>{STARS_PRICE} ⭐️ Stars</b>\n\n"
+            f"پرداخت ریالی: <b>@{ADMIN_USERNAME}</b>")
     k = InlineKeyboardMarkup([
         [InlineKeyboardButton("پرداخت با ⭐️ استارز", callback_data=CB_SUBS_PAY)],
         [InlineKeyboardButton("↩️ بازگشت به منو", callback_data=CB_MAIN)]
@@ -136,285 +121,172 @@ async def subs_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await q.message.edit_text(text, reply_markup=k, parse_mode="HTML")
 
 async def subs_pay(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # ارسال فاکتور Stars (بدون provider_token)
-    q = update.callback_query
-    await q.answer()
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
     chat_id = q.from_user.id
     await context.bot.send_invoice(
-        chat_id=chat_id,
-        title="اشتراک ماهانه",
-        description="دسترسی به تحلیل چارت با بالاترین دقت به مدت ۳۰ روز",
+        chat_id=chat_id, title="اشتراک ماهانه",
+        description="دسترسی به تحلیل چارت به مدت ۳۰ روز",
         payload=f"sub_month_{chat_id}",
-        provider_token="",       # برای Stars لازم نیست
-        currency="XTR",          # واحد ستاره
+        provider_token="", currency="XTR",
         prices=[LabeledPrice("اشتراک 1 ماهه", STARS_PRICE)],
     )
 
 async def precheckout_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # تایید پرداخت قبل از نهایی شدن
     await update.pre_checkout_query.answer(ok=True)
 
 async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    uid = update.message.from_user.id
-    now = int(time.time())
-    update_user(uid, {
-        "subscription": {
-            "active": True,
-            "plan": "monthly",
-            "start_ts": now,
-            "end_ts": now + 30*24*3600,
-            "via": "stars"
-        }
-    })
-    # ثبت تراکنش
-    try:
-        add_payment_record(uid, STARS_PRICE, update.message.successful_payment.invoice_payload)
-    except Exception:
-        log.exception("failed to store payment record")
-
-    await update.message.reply_text(
-        "<b>پرداخت موفق ✅</b>\nاشتراک شما به مدت ۳۰ روز فعال شد.",
-        parse_mode="HTML", reply_markup=menu_kb()
-    )
+    uid = update.message.from_user.id; now = int(time.time())
+    update_user(uid, {"subscription": {"active": True,"plan": "monthly","start_ts": now,"end_ts": now + 30*24*3600,"via": "stars"}})
+    try: add_payment_record(uid, STARS_PRICE, update.message.successful_payment.invoice_payload)
+    except Exception: log.exception("failed to store payment record")
+    await update.message.reply_text("<b>پرداخت موفق ✅</b>\nاشتراک شما ۳۰ روز فعال شد.", parse_mode="HTML", reply_markup=menu_kb())
 
 async def profile_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    await q.answer()
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
     u = get_user(q.from_user.id)
-    sub = u["subscription"]
-    stats = u["stats"]
-    text = (
+    sub, stats = u["subscription"], u["stats"]
+    gpt_limit = GPT_DAILY_LIMIT_PRO if has_active_sub(u) else GPT_DAILY_LIMIT_FREE
+    gpt_used  = get_gpt_daily_count(u)
+    txt = (
         "<b>پروفایل 👤</b>\n"
-        f"• <b>آیدی عددی:</b> <code>{u['user_id']}</code>\n"
-        f"• <b>نام:</b> {u.get('name') or '-'}\n"
-        f"• <b>نام‌کاربری:</b> @{u.get('username') or '-'}\n"
-        f"• <b>تاریخ عضویت:</b> { _fmt_ts(u['created_at']) }\n\n"
-        f"• <b>اشتراک فعال:</b> {'✅' if sub['active'] else '❌'}\n"
-        f"• <b>پلن:</b> {sub['plan'] or '-'}\n"
-        f"• <b>شروع:</b> { _fmt_ts(sub['start_ts']) }\n"
-        f"• <b>پایان:</b> { _fmt_ts(sub['end_ts']) }\n"
-        f"• <b>روش پرداخت:</b> {sub['via'] or '-'}\n\n"
-        f"• <b>تعداد تحلیل‌ها:</b> {stats['analyses_count']}\n"
-        f"• <b>آخرین تحلیل:</b> { _fmt_ts(stats['last_analysis_ts']) }\n"
-        f"• <b>آخرین اعتماد:</b> {stats['last_confidence'] if stats['last_confidence'] is not None else '-'}٪\n"
+        f"• <b>آیدی:</b> <code>{u['user_id']}</code>\n"
+        f"• <b>نام:</b> {u.get('name') or '-'} | @{u.get('username') or '-'}\n"
+        f"• <b>عضویت از:</b> { _fmt_ts(u['created_at']) }\n\n"
+        f"• <b>اشتراک فعال:</b> {'✅' if sub['active'] else '❌'} | <b>پلن:</b> {sub['plan'] or '-'}\n"
+        f"• <b>پایان:</b> { _fmt_ts(sub['end_ts']) }\n\n"
+        f"• <b>تحلیل‌های امروز (تصویر):</b> {get_daily_count(u)}\n"
+        f"• <b>سؤالات GPT امروز (متن):</b> {gpt_used} / {gpt_limit}\n"
     )
-    await q.message.edit_text(text, reply_markup=back_kb(), parse_mode="HTML")
+    await q.message.edit_text(txt, parse_mode="HTML", reply_markup=back_kb())
 
 def _settings_kb(u):
     s = u["settings"]
     return InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton(f"آستانه اعتماد: {s['min_confidence']}٪ ➖", callback_data=CB_SETTINGS_CONF_DOWN),
-            InlineKeyboardButton("➕", callback_data=CB_SETTINGS_CONF_UP),
-        ],
+        [InlineKeyboardButton(f"آستانه اعتماد: {s['min_confidence']}٪ ➖", callback_data=CB_SETTINGS_CONF_DOWN),
+         InlineKeyboardButton("➕", callback_data=CB_SETTINGS_CONF_UP)],
         [InlineKeyboardButton(f"حالت ریسک: {s['risk_mode']}", callback_data=CB_SETTINGS_RISK)],
         [InlineKeyboardButton(f"زبان خروجی: {s['lang']}", callback_data=CB_SETTINGS_LANG)],
         [InlineKeyboardButton("↩️ بازگشت به منو", callback_data=CB_MAIN)],
     ])
 
 async def settings_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    await q.answer()
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
     u = get_user(q.from_user.id)
-    text = (
-        "<b>تنظیمات ⚙️</b>\n"
-        "• <b>آستانه اعتماد</b>: اگر اعتماد مدل از این کمتر باشد، خروجی به‌عنوان سیگنال معتبر نشان داده نمی‌شود.\n"
-        "• <b>حالت ریسک</b>: conservative / balanced / aggressive.\n"
-        "• <b>زبان خروجی</b>: fa / en."
+    await q.message.edit_text(
+        "<b>تنظیمات ⚙️</b>\n• آستانه اعتماد\n• حالت ریسک\n• زبان خروجی",
+        parse_mode="HTML", reply_markup=_settings_kb(u)
     )
-    await q.message.edit_text(text, reply_markup=_settings_kb(u), parse_mode="HTML")
 
 async def settings_actions(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    uid = q.from_user.id
-    u = get_user(uid)
-    data = q.data
-
-    if data == CB_SETTINGS_CONF_UP:
-        val = min(95, u["settings"]["min_confidence"] + 5)
-        update_user(uid, {"settings": {"min_confidence": val}})
-    elif data == CB_SETTINGS_CONF_DOWN:
-        val = max(0, u["settings"]["min_confidence"] - 5)
-        update_user(uid, {"settings": {"min_confidence": val}})
+    if not await _require_membership(update, context): return
+    q = update.callback_query; uid = q.from_user.id
+    u = get_user(uid); data = q.data
+    if data == CB_SETTINGS_CONF_UP:   val = min(95, u["settings"]["min_confidence"] + 5)
+    elif data == CB_SETTINGS_CONF_DOWN: val = max(0,  u["settings"]["min_confidence"] - 5)
+    else: val = None
+    if val is not None: update_user(uid, {"settings": {"min_confidence": val}})
     elif data == CB_SETTINGS_RISK:
-        order = ["conservative", "balanced", "aggressive"]
-        cur = u["settings"]["risk_mode"]
-        nxt = order[(order.index(cur) + 1) % len(order)]
-        update_user(uid, {"settings": {"risk_mode": nxt}})
+        order = ["conservative","balanced","aggressive"]; cur = u["settings"]["risk_mode"]
+        update_user(uid, {"settings": {"risk_mode": order[(order.index(cur)+1)%len(order)]}})
     elif data == CB_SETTINGS_LANG:
-        nxt = "en" if u["settings"]["lang"] == "fa" else "fa"
-        update_user(uid, {"settings": {"lang": nxt}})
-
+        update_user(uid, {"settings": {"lang": "en" if u["settings"]["lang"]=="fa" else "fa"}})
     await q.answer("به‌روز شد ✅")
-    u2 = get_user(uid)
-    await q.message.edit_text("<b>تنظیمات ⚙️</b>\nگزینه‌ها را تغییر دادید.", 
-                              reply_markup=_settings_kb(u2), parse_mode="HTML")
+    await q.message.edit_text("<b>تنظیمات ⚙️</b>\nبه‌روزرسانی انجام شد.", parse_mode="HTML", reply_markup=_settings_kb(get_user(uid)))
 
-# ==== تحلیل عکس (با محدودیت 3 بار رایگان)
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not await _require_membership(update, context): return
     waiting = await update.message.reply_text("<b>در حال تحلیل تصویر...</b> 🧐", parse_mode="HTML")
     try:
-        # 1) کاربر
-        u = ensure_user(
-            update.effective_user.id,
-            update.effective_user.username or "",
-            update.effective_user.full_name or ""
-        )
-
-        # 2) محدودیت رایگان برای کاربران بدون اشتراک
-        if not has_active_sub(u) and u["stats"]["analyses_count"] >= FREE_LIMIT:
-            await waiting.edit_text(
-                f"⚠️ شما به <b>{FREE_LIMIT}</b> تحلیل رایگان رسیده‌اید.\n"
-                "برای ادامه باید <b>اشتراک</b> بگیرید 🛒.",
-                parse_mode="HTML",
-                reply_markup=menu_kb()
-            )
-            return
-
-        # 3) دانلود عکس
-        photo = update.message.photo[-1]
-        file = await photo.get_file()
-        buf = io.BytesIO()
-        await file.download_to_memory(out=buf)
-        image_bytes = buf.getvalue()
-
-        # 4) تحلیل
-        result = analyze_chart(image_bytes)
-        conf = int(result.get("confidence_percent") or 0)
-
-        # 5) آمار
+        u = ensure_user(update.effective_user.id, update.effective_user.username or "", update.effective_user.full_name or "")
+        if not has_active_sub(u) and get_daily_count(u) >= DAILY_FREE_LIMIT:
+            await waiting.edit_text(f"⛔️ سقف تحلیل روزانه پر شد ({DAILY_FREE_LIMIT}).\nاشتراک بگیر یا فردا امتحان کن.",
+                                    parse_mode="HTML", reply_markup=menu_kb()); return
+        photo = update.message.photo[-1]; file = await photo.get_file()
+        buf = io.BytesIO(); await file.download_to_memory(out=buf)
+        result = analyze_chart(buf.getvalue()); conf = int(result.get("confidence_percent") or 0)
         increment_analysis(update.effective_user.id, conf=conf)
-
-        # 6) آستانه اعتماد
-        minc = u["settings"]["min_confidence"]
-        if conf < minc:
-            txt = (
-                "<b>سیگنال معتبر نیست</b> (اعتماد پایین‌تر از آستانه شما).\n"
-                f"<b>اعتماد مدل:</b> {conf}٪ | <b>آستانه شما:</b> {minc}٪\n\n"
-                "برای کاهش آستانه به <b>تنظیمات</b> بروید."
-            )
-            await waiting.edit_text(txt, parse_mode="HTML", reply_markup=back_kb())
-            return
-
-        # 7) پاسخ
-        text = format_reply(result)
-        text += f"\n\n<b>حالت ریسک فعلی:</b> {u['settings']['risk_mode']}"
-        await waiting.edit_text(text, parse_mode="HTML", reply_markup=back_kb())
-
+        increment_daily_analysis(update.effective_user.id, conf=conf)
+        if conf < u["settings"]["min_confidence"]:
+            await waiting.edit_text(f"<b>سیگنال معتبر نیست</b> (اعتماد {conf}٪ زیر آستانه).",
+                                    parse_mode="HTML", reply_markup=back_kb()); return
+        txt = format_reply(result) + f"\n\n<b>حالت ریسک فعلی:</b> {u['settings']['risk_mode']}\n\n<i>{AI_BRAND_LABEL}</i>"
+        await waiting.edit_text(txt, parse_mode="HTML", reply_markup=back_kb())
     except Exception:
         log.exception("Photo handling failed")
-        await waiting.edit_text(
-            "⚠️ خطا در تحلیل. لطفاً عکس واضح‌تر بفرست یا دوباره امتحان کن.",
-            parse_mode="HTML",
-            reply_markup=back_kb()
-        )
+        await waiting.edit_text("⚠️ خطا در تحلیل. دوباره امتحان کن.", parse_mode="HTML", reply_markup=back_kb())
 
-# ==== پنل ادمین (/admin)
+# --- Admin (بدون تغییرات عمده؛ اگر قبلاً داشتی اضافه کن همین‌ها)
 async def admin_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not _is_owner(update):
-        return
+    if not _is_owner(update): return
+    if not await _require_membership(update, context): return
     await update.message.reply_text("<b>پنل ادمین</b>", parse_mode="HTML", reply_markup=admin_kb())
 
 async def admin_menu_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not _is_owner(update):
-        await update.callback_query.answer("اجازه دسترسی ندارید.", show_alert=True)
-        return
-    q = update.callback_query
-    await q.answer()
+    if not _is_owner(update): await update.callback_query.answer("اجازه ندارید.", show_alert=True); return
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
     await q.message.edit_text("<b>پنل ادمین</b>", parse_mode="HTML", reply_markup=admin_kb())
 
 async def admin_stats_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not _is_owner(update):
-        await update.callback_query.answer("اجازه دسترسی ندارید.", show_alert=True); return
-    q = update.callback_query
-    await q.answer()
+    if not _is_owner(update): await update.callback_query.answer("اجازه ندارید.", show_alert=True); return
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
     pays = last_payments(5)
-    lines = []
-    for p in pays:
-        lines.append(f"• UID {p['user_id']} — {p['amount_stars']}⭐️ — <code>{p['payload']}</code>")
-    txt = (
+    lines = [f"• UID {p['user_id']} — {p['amount_stars']}⭐️ — <code>{p['payload']}</code>" for p in pays]
+    await q.message.edit_text(
         "<b>📊 آمار</b>\n"
         f"• کاربران: <b>{count_users()}</b>\n"
         f"• اشتراک‌های فعال: <b>{count_active_subs()}</b>\n\n"
-        "<b>آخرین پرداخت‌ها:</b>\n" + ("\n".join(lines) if lines else "—")
-    )
-    await q.message.edit_text(txt, parse_mode="HTML", reply_markup=admin_kb())
-
-async def admin_grant_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not _is_owner(update):
-        await update.callback_query.answer("اجازه دسترسی ندارید.", show_alert=True); return
-    q = update.callback_query
-    await q.answer()
-    context.user_data["ADM_MODE"] = "GRANT_WAIT"
-    await q.message.edit_text(
-        "<b>فعالسازی دستی</b>\n"
-        "آیدی عددی کاربر و تعداد روز را بفرست (مثال: <code>123456789 30</code>)\n"
-        "فقط آیدی هم بفرستی، پیش‌فرض 30 روز فعال می‌شود.",
-        parse_mode="HTML",
-        reply_markup=admin_kb()
-    )
-
-async def admin_bcast_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if not _is_owner(update):
-        await update.callback_query.answer("اجازه دسترسی ندارید.", show_alert=True); return
-    q = update.callback_query
-    await q.answer()
-    context.user_data["ADM_MODE"] = "BCAST_WAIT"
-    await q.message.edit_text(
-        "<b>برودکست</b>\nمتن پیام را بفرست تا برای همه کاربران ارسال شود.",
+        "<b>آخرین پرداخت‌ها:</b>\n" + ("\n".join(lines) if lines else "—"),
         parse_mode="HTML", reply_markup=admin_kb()
     )
 
-async def admin_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # فقط وقتی ادمین در حالت مخصوص است؛ وگرنه مزاحم چت معمولی نشو
-    if not _is_owner(update):
-        return
-    mode = context.user_data.get("ADM_MODE")
-    if not mode:
-        return
+async def admin_grant_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_owner(update): await update.callback_query.answer("اجازه ندارید.", show_alert=True); return
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
+    context.user_data["ADM_MODE"] = "GRANT_WAIT"
+    await q.message.edit_text("آیدی و روز را بفرست: <code>123456789 30</code>", parse_mode="HTML", reply_markup=admin_kb())
 
+async def admin_bcast_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not _is_owner(update): await update.callback_query.answer("اجازه ندارید.", show_alert=True); return
+    if not await _require_membership(update, context): return
+    q = update.callback_query; await q.answer()
+    context.user_data["ADM_MODE"] = "BCAST_WAIT"
+    await q.message.edit_text("متن برودکست را بفرست.", parse_mode="HTML", reply_markup=admin_kb())
+
+async def admin_text_router(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.user_data.get("JOURNAL_WAIT"): return
+    if not _is_owner(update): return
+    if not await _require_membership(update, context): return
+    mode = context.user_data.get("ADM_MODE")
+    if not mode: return
     if mode == "GRANT_WAIT":
         try:
             parts = update.message.text.strip().split()
-            uid = int(parts[0])
-            days = int(parts[1]) if len(parts) > 1 else 30
+            uid = int(parts[0]); days = int(parts[1]) if len(parts) > 1 else 30
             set_subscription_days(uid, days, via="admin", plan=f"manual_{days}d")
             context.user_data["ADM_MODE"] = None
-            await update.message.reply_text(
-                f"<b>اوکی!</b> اشتراک کاربر <code>{uid}</code> برای <b>{days}</b> روز فعال شد ✅",
-                parse_mode="HTML", reply_markup=admin_kb()
-            )
+            await update.message.reply_text("اوکی! فعال شد ✅", parse_mode="HTML", reply_markup=admin_kb())
         except Exception:
-            await update.message.reply_text(
-                "فرمت ورودی اشتباه است. مثال صحیح:\n<code>123456789 30</code>",
-                parse_mode="HTML", reply_markup=admin_kb()
-            )
-
+            await update.message.reply_text("فرمت غلط. مثال: <code>123456789 30</code>", parse_mode="HTML", reply_markup=admin_kb())
     elif mode == "BCAST_WAIT":
-        text = update.message.text
-        ids = all_user_ids()
-        ok, fail = 0, 0
+        text = update.message.text; ids = all_user_ids(); ok = fail = 0
         for uid in ids:
-            try:
-                await context.bot.send_message(chat_id=uid, text=text, parse_mode="HTML")
-                ok += 1
-            except Exception:
-                fail += 1
+            try: await context.bot.send_message(chat_id=uid, text=text, parse_mode="HTML"); ok += 1
+            except Exception: fail += 1
         context.user_data["ADM_MODE"] = None
-        await update.message.reply_text(
-            f"<b>برودکست تمام شد.</b>\nموفق: <b>{ok}</b> | ناموفق: <b>{fail}</b>",
-            parse_mode="HTML", reply_markup=admin_kb()
-        )
+        await update.message.reply_text(f"برودکست تمام شد. موفق: {ok} | ناموفق: {fail}", parse_mode="HTML", reply_markup=admin_kb())
 
-# ==== ثبت هندلرها
 def build_app():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
-
-    # دستورات عمومی
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_cmd))
+    app.add_handler(CommandHandler("admin", admin_cmd))
 
-    # منوهای اصلی
     app.add_handler(CallbackQueryHandler(main_menu,     pattern=f"^{CB_MAIN}$"))
     app.add_handler(CallbackQueryHandler(analyze_menu,  pattern=f"^{CB_ANALYZE}$"))
     app.add_handler(CallbackQueryHandler(subs_menu,     pattern=f"^{CB_SUBS}$"))
@@ -425,20 +297,19 @@ def build_app():
         settings_actions,
         pattern=f"^{CB_SETTINGS}.*|^{CB_SETTINGS_CONF_UP}$|^{CB_SETTINGS_CONF_DOWN}$|^{CB_SETTINGS_RISK}$|^{CB_SETTINGS_LANG}$"
     ))
+    app.add_handler(CallbackQueryHandler(join_check_cb, pattern=f"^{CB_JOIN_CHECK}$"))
 
-    # پرداخت Stars
+    # آموزش‌ها (شامل روتِر ژورنال)
+    register_learn_handlers(app)
+
     app.add_handler(PreCheckoutQueryHandler(precheckout_handler))
     app.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment))
 
-    # پنل ادمین
-    app.add_handler(CommandHandler("admin", admin_cmd))
     app.add_handler(CallbackQueryHandler(admin_menu_cb,  pattern=f"^{CB_ADMIN}$"))
     app.add_handler(CallbackQueryHandler(admin_stats_cb, pattern=f"^{CB_ADMIN_STATS}$"))
     app.add_handler(CallbackQueryHandler(admin_grant_cb, pattern=f"^{CB_ADMIN_GRANT}$"))
     app.add_handler(CallbackQueryHandler(admin_bcast_cb, pattern=f"^{CB_ADMIN_BCAST}$"))
+
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, admin_text_router))
-
-    # دریافت عکس برای تحلیل
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
-
     return app
