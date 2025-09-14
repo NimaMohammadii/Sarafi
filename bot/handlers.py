@@ -81,8 +81,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     ensure_user(user.id, user.username or "", (user.full_name or ""))
     text = ("<b>به بات تحلیل چارت خوش آمدی!</b>\n\n"
-            f"<b>مدل:</b> {MODEL_VISION}\n"
-            "⚠️ <b>تحلیل ماشینی است و سیگنال قطعی نیست.</b>\n\n"
+            f"<b>مدل: GPT-5 🫧</b>\n\n"
             "<b>از منوی زیر انتخاب کن:</b>")
     await update.message.reply_text(text, reply_markup=menu_kb(), parse_mode="HTML")
 
@@ -113,7 +112,6 @@ async def subs_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await _require_membership(update, context): return
     q = update.callback_query; await q.answer()
     text = (f"<b>خرید اشتراک 🛒</b>\n• <b>۱ ماهه</b> = <b>{STARS_PRICE} ⭐️ Stars</b>\n\n"
-            f"پرداخت ریالی: <b>@{ADMIN_USERNAME}</b>")
     k = InlineKeyboardMarkup([
         [InlineKeyboardButton("پرداخت با ⭐️ استارز", callback_data=CB_SUBS_PAY)],
         [InlineKeyboardButton("↩️ بازگشت به منو", callback_data=CB_MAIN)]
