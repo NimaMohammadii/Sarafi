@@ -16,7 +16,7 @@ AI_TEXT_MODEL       = os.getenv("AI_TEXT_MODEL", "gpt-4o-mini")
 AI_VISION_MODEL     = os.getenv("AI_VISION_MODEL", MODEL_VISION)
 AI_TEMPERATURE      = float(os.getenv("AI_TEMPERATURE", "0.2"))
 AI_MAX_TOKENS_TEXT  = int(os.getenv("AI_MAX_TOKENS_TEXT", "160"))
-AI_BRAND_LABEL      = os.getenv("AI_BRAND_LABEL", "🤖 Powered by GPT (بهینه)")
+AI_BRAND_LABEL      = os.getenv("AI_BRAND_LABEL", "🤖 Powered by GPT-5 (بهینه)")
 
 # --- forced membership (Telegram channel username only) ---
 CHANNEL_ID  = os.getenv("CHANNEL_ID", "")  # مانند: @yourchannel
