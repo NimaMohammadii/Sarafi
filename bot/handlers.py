@@ -112,7 +112,7 @@ async def subs_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not await _require_membership(update, context): return
     q = update.callback_query; await q.answer()
     text = (f"<b>خرید اشتراک 🛒</b>\n• <b>۱ ماهه</b> = <b>{STARS_PRICE} ⭐️ Stars</b>\n\n"
-    
+            f"پرداخت ریالی: <b>@{ADMIN_USERNAME}</b>")
             k = InlineKeyboardMarkup([
         [InlineKeyboardButton("پرداخت با ⭐️ استارز", callback_data=CB_SUBS_PAY)],
         [InlineKeyboardButton("↩️ بازگشت به منو", callback_data=CB_MAIN)]
